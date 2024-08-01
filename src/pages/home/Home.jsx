@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./home.scss";
 import {
   useCreateUserMutation,
@@ -9,14 +9,36 @@ import {
 import { FaFemale, FaMale } from "react-icons/fa";
 import EditModule from "../../components/editModule/EditModule";
 import CreateModule from "../../components/createModule/CreateModule";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Pagination,
+} from "@mui/material";
 
 const Home = () => {
-  const { data: allUsers } = useGetUsersQuery();
+  const [page, setPage] = useState(1);
+  const [gender, setGender] = useState("all");
+
+  const {
+    data: allUsers,
+    refetch,
+    error,
+  } = useGetUsersQuery({
+    skip: page,
+    gender,
+    limit: 5,
+  });
   const [createUser] = useCreateUserMutation();
   const [editUser] = useEditUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(null);
+
+  useEffect(() => {
+    refetch();
+  }, [page, gender, refetch]);
 
   const handleDelete = (id) => {
     deleteUser(id);
@@ -27,11 +49,32 @@ const Home = () => {
     setShowCreate(false);
   };
 
+  console.log(error);
+  useEffect(() => {
+    if (error) {
+      return <div className="no-users">{error?.data?.msg}</div>;
+    }
+  }, [error]);
+
   return (
     <div className="container home">
-      <button className="create-btn" onClick={() => setShowCreate(true)}>Create user</button>
+      <FormControl variant="outlined" className="gender-select">
+        <InputLabel>Gender</InputLabel>
+        <Select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          label="Gender"
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="male">Male</MenuItem>
+          <MenuItem value="female">Female</MenuItem>
+        </Select>
+      </FormControl>
+      <button className="create-btn" onClick={() => setShowCreate(true)}>
+        Create user
+      </button>
       <div className="user__cards">
-        {allUsers?.payload?.map((user) => (
+        {allUsers.payload.map((user) => (
           <div className="user" key={user._id}>
             <img src={user.url} className="user__img" alt="" />
             <div className="user__info">
@@ -47,13 +90,27 @@ const Home = () => {
                 )}
               </div>
               <div className="user__btns">
-                <button className="edit-btn" onClick={() => setShowEdit(user)}>Edit</button>
-                <button className="delete-btn" onClick={() => handleDelete(user._id)}>Delete</button>
+                <button className="edit-btn" onClick={() => setShowEdit(user)}>
+                  Edit
+                </button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(user._id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      <Pagination
+        count={Math.ceil(allUsers?.total / 5)}
+        page={page}
+        onChange={(e, value) => setPage(value)}
+        color="primary"
+        className="pagination"
+      />
 
       {showCreate && (
         <CreateModule

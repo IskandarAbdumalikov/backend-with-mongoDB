@@ -1,15 +1,18 @@
-.home {
+.container {
   display: flex;
   flex-direction: column;
   gap: 50px;
+  .gender-select {
+    max-width: 200px;
+    margin-top: 50px;
+  }
   .create-btn {
     max-width: 150px;
-    margin-top: 50px;
   }
   .user__cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 50px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
     .user {
       display: flex;
       flex-direction: column;
@@ -21,7 +24,7 @@
       &__img {
         width: 100%;
         height: 50%;
-        object-fit: contain;
+        object-fit: cover;
       }
       &__info {
         display: flex;
@@ -46,6 +49,11 @@
         }
       }
     }
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
   }
 }
 
