@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 const EditModule = ({ user, onClose, onEdit }) => {
-  const [formData, setFormData] = useState(user);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: user,
+  });
 
   useEffect(() => {
-    setFormData(user);
-  }, [user]);
+    reset(user);
+  }, [user, reset]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onEdit({ id: user._id, body: formData });
+  const onSubmit = (data) => {
+    const { _id, __v, ...formDataWithoutIdAndV } = data;
+    onEdit({ id: _id, body: formDataWithoutIdAndV });
     onClose();
   };
 
@@ -24,65 +27,66 @@ const EditModule = ({ user, onClose, onEdit }) => {
         <span className="close" onClick={onClose}>
           &times;
         </span>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <input
             type="text"
-            name="fname"
-            value={formData.fname}
-            onChange={handleChange}
-            required
+            {...register("fname", { required: "First name is required" })}
           />
+          {errors.fname && <div className="error">{errors.fname.message}</div>}
+
           <input
             type="text"
-            name="lname"
-            value={formData.lname}
-            onChange={handleChange}
-            required
+            {...register("lname", { required: "Last name is required" })}
           />
+          {errors.lname && <div className="error">{errors.lname.message}</div>}
+
           <input
             type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
+            {...register("username", { required: "Username is required" })}
           />
+          {errors.username && (
+            <div className="error">{errors.username.message}</div>
+          )}
+
           <input
             type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
+            {...register("password", { required: "Password is required" })}
           />
+          {errors.password && (
+            <div className="error">{errors.password.message}</div>
+          )}
+
           <input
             type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
+            {...register("age", {
+              required: "Age is required",
+              valueAsNumber: true,
+            })}
           />
-          <input
-            type="text"
-            name="url"
-            value={formData.url}
-            onChange={handleChange}
-          />
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-          >
+          {errors.age && <div className="error">{errors.age.message}</div>}
+
+          <input type="text" {...register("url")} />
+
+          <select {...register("gender", { required: "Gender is required" })}>
             <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
+          {errors.gender && (
+            <div className="error">{errors.gender.message}</div>
+          )}
+
           <input
             type="number"
-            name="budget"
-            value={formData.budget}
-            onChange={handleChange}
-            required
+            {...register("budget", {
+              required: "Budget is required",
+              valueAsNumber: true,
+            })}
           />
+          {errors.budget && (
+            <div className="error">{errors.budget.message}</div>
+          )}
+
           <button type="submit">Save Changes</button>
           <button style={{ background: "red" }} onClick={onClose} type="button">
             Cancel

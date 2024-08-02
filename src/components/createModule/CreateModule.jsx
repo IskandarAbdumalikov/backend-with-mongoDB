@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import "./createModule.scss";
+import React from "react";
+import { useForm } from "react-hook-form";
 
 const CreateModule = ({ onClose, onCreate }) => {
-  const [formData, setFormData] = useState({
-    fname: "",
-    lname: "",
-    username: "",
-    password: "",
-    age: "",
-    url: "",
-    gender: "",
-    isActive: true,
-    budget: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      fname: "",
+      lname: "",
+      username: "",
+      password: "",
+      age: "",
+      url: "",
+      gender: "",
+      isActive: true,
+      budget: "",
+    },
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onCreate(formData);
+  const onSubmit = (data) => {
+    onCreate(data);
     onClose();
   };
 
@@ -31,60 +31,76 @@ const CreateModule = ({ onClose, onCreate }) => {
         <span className="close" onClick={onClose}>
           &times;
         </span>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <input
             type="text"
-            name="fname"
+            {...register("fname", { required: "First name is required" })}
             placeholder="First Name"
-            onChange={handleChange}
-            required
           />
+          {errors.fname && <div className="error">{errors.fname.message}</div>}
+
           <input
             type="text"
-            name="lname"
+            {...register("lname", { required: "Last name is required" })}
             placeholder="Last Name"
-            onChange={handleChange}
-            required
           />
+          {errors.lname && <div className="error">{errors.lname.message}</div>}
+
           <input
             type="text"
-            name="username"
+            {...register("username", { required: "Username is required" })}
             placeholder="Username"
-            onChange={handleChange}
-            required
           />
+          {errors.username && (
+            <div className="error">{errors.username.message}</div>
+          )}
+
           <input
             type="password"
-            name="password"
+            {...register("password", { required: "Password is required" })}
             placeholder="Password"
-            onChange={handleChange}
-            required
           />
+          {errors.password && (
+            <div className="error">{errors.password.message}</div>
+          )}
+
           <input
             type="number"
-            name="age"
+            {...register("age", {
+              required: "Age is required",
+              valueAsNumber: true,
+            })}
             placeholder="Age"
-            onChange={handleChange}
-            required
           />
+          {errors.age && <div className="error">{errors.age.message}</div>}
+
           <input
             type="text"
-            name="url"
+            {...register("url")}
             placeholder="Profile Image URL"
-            onChange={handleChange}
           />
-          <select name="gender" onChange={handleChange} required>
+
+          <select {...register("gender", { required: "Gender is required" })}>
             <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
+          {errors.gender && (
+            <div className="error">{errors.gender.message}</div>
+          )}
+
           <input
             type="number"
-            name="budget"
+            {...register("budget", {
+              required: "Budget is required",
+              valueAsNumber: true,
+            })}
             placeholder="Budget"
-            onChange={handleChange}
-            required
           />
+          {errors.budget && (
+            <div className="error">{errors.budget.message}</div>
+          )}
+
           <button type="submit">Create</button>
           <button style={{ background: "red" }} onClick={onClose} type="button">
             Cancel

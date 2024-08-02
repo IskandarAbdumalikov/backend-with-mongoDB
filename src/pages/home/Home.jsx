@@ -49,13 +49,6 @@ const Home = () => {
     setShowCreate(false);
   };
 
-  console.log(error);
-  useEffect(() => {
-    if (error) {
-      return <div className="no-users">{error?.data?.msg}</div>;
-    }
-  }, [error]);
-
   return (
     <div className="container home">
       <FormControl variant="outlined" className="gender-select">
@@ -74,35 +67,46 @@ const Home = () => {
         Create user
       </button>
       <div className="user__cards">
-        {allUsers.payload.map((user) => (
-          <div className="user" key={user._id}>
-            <img src={user.url} className="user__img" alt="" />
-            <div className="user__info">
-              <h3>
-                {user.fname} {user.lname}
-              </h3>
-              <div className="gender">
-                <p>Gender</p>
-                {user.gender === "male" ? (
-                  <FaMale style={{ color: "blue" }} />
-                ) : (
-                  <FaFemale style={{ color: "red" }} />
-                )}
-              </div>
-              <div className="user__btns">
-                <button className="edit-btn" onClick={() => setShowEdit(user)}>
-                  Edit
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDelete(user._id)}
-                >
-                  Delete
-                </button>
+        {error ? (
+          <div className="no-users">
+            {error?.data?.msg || "An error occurred"}
+          </div>
+        ) : allUsers?.payload?.length > 0 ? (
+          allUsers.payload.map((user) => (
+            <div className="user" key={user._id}>
+              <img src={user.url} className="user__img" alt="" />
+              <div className="user__info">
+                <h3>
+                  {user.fname} {user.lname}
+                </h3>
+                <div className="gender">
+                  <p>Gender</p>
+                  {user.gender === "male" ? (
+                    <FaMale style={{ color: "blue" }} />
+                  ) : (
+                    <FaFemale style={{ color: "red" }} />
+                  )}
+                </div>
+                <div className="user__btns">
+                  <button
+                    className="edit-btn"
+                    onClick={() => setShowEdit(user)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(user._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="no-users">Users not found</div>
+        )}
       </div>
       <Pagination
         count={Math.ceil(allUsers?.total / 5)}
@@ -127,9 +131,7 @@ const Home = () => {
       )}
       {showCreate || showEdit ? (
         <div onClick={handleClose} className="overlay"></div>
-      ) : (
-        <></>
-      )}
+      ) : null}
     </div>
   );
 };
