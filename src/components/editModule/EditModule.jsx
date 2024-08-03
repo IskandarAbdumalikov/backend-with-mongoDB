@@ -1,5 +1,13 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 
 const EditModule = ({ user, onClose, onEdit }) => {
   const {

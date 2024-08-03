@@ -1,0 +1,30 @@
+.single-user {
+  display: flex;
+  gap: 100px;
+  justify-content: space-between;
+  height: 700px;
+  flex-direction: row;
+  &__left,
+  &__right {
+    width: 50%;
+    padding-top: 100px;
+  }
+  &__left {
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50px;
+    }
+  }
+  &__right {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    h2 {
+      font-size: 70px;
+    }
+    p {
+      font-size: 35px;
+    }
+  }
+}

@@ -24,9 +24,13 @@
       h3{
         font-size: 18px;
       }
-      &__img {
+      a{
         width: 100%;
         height: 50%;
+      }
+      &__img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
       }
       &__info {

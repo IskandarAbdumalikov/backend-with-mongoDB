@@ -6,7 +6,7 @@ import {
   useEditUserMutation,
   useGetUsersQuery,
 } from "../../context/api/userApi";
-import { FaFemale, FaMale } from "react-icons/fa";
+import { FaFemale, FaMale, FaRobot } from "react-icons/fa";
 import EditModule from "../../components/editModule/EditModule";
 import CreateModule from "../../components/createModule/CreateModule";
 import {
@@ -15,11 +15,22 @@ import {
   FormControl,
   InputLabel,
   Pagination,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../../context/slices/authSlice";
 
 const Home = () => {
   const [page, setPage] = useState(1);
   const [gender, setGender] = useState("all");
+  const [deleteUserId, setDeleteUserId] = useState(null);
+  const [usernameError, setUsernameError] = useState("");
 
   const {
     data: allUsers,
@@ -30,18 +41,42 @@ const Home = () => {
     gender,
     limit: 5,
   });
-  const [createUser] = useCreateUserMutation();
-  const [editUser] = useEditUserMutation();
+  const [createUser, { error: createdUserError }] = useCreateUserMutation();
+  const [editUser, { error: editedUserError }] = useEditUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(null);
+  let dispatch = useDispatch();
+  let navigate = useNavigate();
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    if (createdUserError) {
+      alert(createdUserError?.data?.msg);
+    }
+  }, [createdUserError]);
+
+  useEffect(() => {
+    if (editedUserError && editedUserError.data.msg.includes("username")) {
+      setUsernameError(editedUserError.data.msg);
+    }
+  }, [editedUserError]);
+
+  console.log(error);
+  if (error?.data?.msg === "Unauthorized") {
+    handleLogout();
+  }
 
   useEffect(() => {
     refetch();
   }, [page, gender, refetch]);
 
-  const handleDelete = (id) => {
-    deleteUser(id);
+  const handleDelete = () => {
+    deleteUser(deleteUserId);
+    setDeleteUserId(null);
   };
 
   const handleClose = () => {
@@ -61,6 +96,7 @@ const Home = () => {
           <MenuItem value="all">All</MenuItem>
           <MenuItem value="male">Male</MenuItem>
           <MenuItem value="female">Female</MenuItem>
+          <MenuItem value="other">Other</MenuItem>
         </Select>
       </FormControl>
       <button className="create-btn" onClick={() => setShowCreate(true)}>
@@ -74,7 +110,9 @@ const Home = () => {
         ) : allUsers?.payload?.length > 0 ? (
           allUsers.payload.map((user) => (
             <div className="user" key={user._id}>
-              <img src={user.url} className="user__img" alt="" />
+              <Link to={`/${user._id}`}>
+                <img src={user.url} className="user__img" alt="" />
+              </Link>
               <div className="user__info">
                 <h3>
                   {user.fname} {user.lname}
@@ -83,8 +121,10 @@ const Home = () => {
                   <p>Gender</p>
                   {user.gender === "male" ? (
                     <FaMale style={{ color: "blue" }} />
-                  ) : (
+                  ) : user.gender === "female" ? (
                     <FaFemale style={{ color: "red" }} />
+                  ) : (
+                    <FaRobot />
                   )}
                 </div>
                 <div className="user__btns">
@@ -96,7 +136,7 @@ const Home = () => {
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => setDeleteUserId(user._id)}
                   >
                     Delete
                   </button>
@@ -132,6 +172,45 @@ const Home = () => {
       {showCreate || showEdit ? (
         <div onClick={handleClose} className="overlay"></div>
       ) : null}
+
+      <Dialog
+        open={deleteUserId !== null}
+        onClose={() => setDeleteUserId(null)}
+      >
+        <DialogTitle>
+          {"Are you sure you want to delete this user?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Deleting this user cannot be undone. Please confirm if you want to
+            proceed.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteUserId(null)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="primary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={usernameError !== ""} onClose={() => setUsernameError("")}>
+        <DialogTitle>{"Error"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{usernameError}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setUsernameError("")}
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
